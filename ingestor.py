@@ -34,9 +34,6 @@ def fetch_and_process_alerts(db: Session):
         
         crud.create_alert(db, alert_id=alert_id, message=message, language="en", severity=severity)
 
-        # In a real-world, large-scale app, you wouldn't notify EVERYONE of every alert.
-        # You would match the alert's geographic area to users' locations.
-        # For this demo, we notify all registered devices.
         devices = crud.get_all_devices(db)
         for device in devices:
             final_message = message
@@ -51,10 +48,11 @@ def fetch_and_process_alerts(db: Session):
 def _fetch_alerts_from_source() -> list:
     """
     Fetches data from the OpenFEMA API for past IPAWS alerts.
+    This is the definitive live version and does not contain demo alerts.
     """
     try:
-        # Fetch the 5 most recent alerts that have a messageText
-        response = requests.get(f"{FEMA_API_URL}?$top=5&$filter=messageText ne null")
+        # Fetch the 10 most recent alerts that have a messageText
+        response = requests.get(f"{FEMA_API_URL}?$top=10&$filter=messageText ne null")
         response.raise_for_status()
         
         data = response.json()
@@ -69,7 +67,8 @@ def _fetch_alerts_from_source() -> list:
                     "message": alert.get("messageText"),
                     "severity": alert.get("severity", "Unknown"),
                 })
-        return formatted_alerts
+        # Reverse the list so that when processed, they are ingested oldest-first
+        return formatted_alerts[::-1]
 
     except requests.exceptions.RequestException as e:
         print(f"\n--- ERROR: Could not fetch alerts from FEMA API: {e} ---\n")
