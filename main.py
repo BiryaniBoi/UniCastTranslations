@@ -24,7 +24,8 @@ app = FastAPI(
 # --- CORS Configuration ---
 origins = [
     "http://localhost",
-    "http://localhost:8001", # Allow our frontend to connect
+    "http://localhost:8001", # Local frontend for development
+    "http://cs.shschools.org", # Deployed frontend
 ]
 
 app.add_middleware(

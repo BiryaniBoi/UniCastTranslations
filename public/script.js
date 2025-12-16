@@ -1,4 +1,4 @@
-const BACKEND_URL = "http://127.0.0.1:8000"; // Our FastAPI backend URL
+const BACKEND_URL = "https://unicasttranslations.onrender.com"; // Our FastAPI backend URL
 
 let deviceId = localStorage.getItem('deviceId');
 let selectedLanguage = localStorage.getItem('selectedLanguage') || 'en';
