@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UniCast Dashboard</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header class="dashboard-header">
+        <h1>UniCast</h1>
+        <nav class="main-nav">
+            <a href="index.html" class="active">Dashboard</a>
+            <a href="about.html">About Us</a>
+            <a href="know_your_rights.html">Know Your Rights</a>
+        </nav>
+    </header>
+
+    <main class="dashboard-main">
+        <section class="controls-panel">
+            <h2>Settings</h2>
+            <div class="control-group">
+                <label for="language-select">Language:</label>
+                <select id="language-select">
+                    <option value="en">English</option>
+                    <option value="es">Español</option>
+                    <option value="fr">Français</option>
+                </select>
+            </div>
+        </section>
+
+        <section class="alerts-feed">
+            <h2 class="feed-title">Live Alert Feed</h2>
+            <div id="alerts-container">
+                <div class="no-alerts">
+                    <p>Awaiting alerts...</p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script src="script.js"></script>
+</body>
+</html>
