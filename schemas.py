@@ -1,5 +1,5 @@
 from pydantic import BaseModel
-from typing import Optional
+from typing import Optional, List
 
 class DeviceBase(BaseModel):
     device_token: str
@@ -23,20 +23,28 @@ class AlertBase(BaseModel):
 class Alert(AlertBase):
     id: int
     timestamp: str
-    translated_message: Optional[str] = None # Added this for completeness, though we'll use AlertDisplay for API output
+    translated_message: Optional[str] = None
     severity: Optional[str] = None
     
     class Config:
         from_attributes = True
 
 class AlertDisplay(BaseModel):
-    """Schema for displaying alerts in the frontend, including translated content."""
+    """Schema for displaying alerts in the frontend."""
     id: int
-    alert_id: str # Original ID from the source (e.g., FEMA)
-    message: str # Original message
-    translated_message: str # Message in the device's preferred language
+    alert_id: str
+    message: str
+    translated_message: str
     severity: str
-    timestamp: str # Formatted timestamp
+    timestamp: str
 
     class Config:
         from_attributes = True
+
+# New schemas for the translation endpoint
+class TranslationRequest(BaseModel):
+    texts: List[str]
+    target_lang: str
+
+class TranslationResponse(BaseModel):
+    translations: List[str]
