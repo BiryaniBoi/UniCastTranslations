@@ -20,20 +20,23 @@ def fetch_and_process_alerts(db: Session):
 
     for raw_alert in raw_alerts:
         alert_id = raw_alert['id']
+        # Skip if the alert ID is null or empty
+        if not alert_id:
+            continue
+
         message = raw_alert['message']
         severity = raw_alert['severity']
 
         if crud.get_alert_by_id(db, alert_id):
-            # We've already processed this alert, so we can skip it.
-            # For a demo, let's just print and continue.
-            # In a real app, you might stop here if alerts are chronological.
             continue
 
         print(f"Processing new alert: {alert_id}")
         
-        # Save the original English alert
         crud.create_alert(db, alert_id=alert_id, message=message, language="en", severity=severity)
 
+        # In a real-world, large-scale app, you wouldn't notify EVERYONE of every alert.
+        # You would match the alert's geographic area to users' locations.
+        # For this demo, we notify all registered devices.
         devices = crud.get_all_devices(db)
         for device in devices:
             final_message = message
@@ -50,27 +53,24 @@ def _fetch_alerts_from_source() -> list:
     Fetches data from the OpenFEMA API for past IPAWS alerts.
     """
     try:
-        # We can add parameters here, like $top=5 to get only the 5 most recent.
-        response = requests.get(f"{FEMA_API_URL}?$top=5")
-        response.raise_for_status()  # Raise an exception for bad status codes (4xx or 5xx) 
+        # Fetch the 5 most recent alerts that have a messageText
+        response = requests.get(f"{FEMA_API_URL}?$top=5&$filter=messageText ne null")
+        response.raise_for_status()
         
         data = response.json()
-        fema_alerts = data.get("IpawsArchived", [])
+        fema_alerts = data.get("IpawsArchivedAlerts", [])
         
-        # Format the complex FEMA object into our simple dictionary
         formatted_alerts = []
         for alert in fema_alerts:
-            # Skip alerts that don't have message text
-            if not alert.get("messageText"):
-                continue
-
-            formatted_alerts.append({
-                "id": alert.get("id", "UNKNOWN_ID"),
-                "message": alert.get("messageText", ""),
-                "severity": alert.get("severity", "Unknown"),
-            })
+            # Ensure the essential fields are present before adding
+            if alert.get("id") and alert.get("messageText"):
+                formatted_alerts.append({
+                    "id": alert.get("id"),
+                    "message": alert.get("messageText"),
+                    "severity": alert.get("severity", "Unknown"),
+                })
         return formatted_alerts
 
     except requests.exceptions.RequestException as e:
         print(f"\n--- ERROR: Could not fetch alerts from FEMA API: {e} ---\n")
-        return [] # Return an empty list to prevent crashes
+        return []
